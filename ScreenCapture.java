@@ -1,10 +1,12 @@
 
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +14,10 @@ import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.junit.Ignore;
@@ -86,7 +90,9 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
             notifier.fireTestIgnored(description);
         } else {
             try {
+            
 				runLeaf(Monitor(method,Gframe,name), description, notifier);
+            	
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -105,7 +111,7 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
 	
 	
 	 private Class<? extends Throwable> getExpectedException(Grader annotation) {
-	        if (annotation == null ){//|| annotation.expected() == None.class) {
+	        if (annotation == null ){
 	            return null;
 	        } else {
 	            return annotation.expected();
@@ -130,24 +136,28 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
 	
 	protected Statement Monitor(final FrameworkMethod method,JFrame frame, String fileName) throws Exception{
 		
+		
+		
 		this.Gframe = frame;
 		this.name = fileName;
-		frame = new JFrame("Result");
+		
+		frame = new JFrame( name);
 		frame.setSize(600, 400);
 		frame.setLayout(new FlowLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel panel = new JPanel();
 		panel.setOpaque(true);
+		
+		JPanel panel1 = new JPanel();
+		panel.setOpaque(true);
+		
 		JTextArea result = new JTextArea();
 		result.setEnabled(false);
-     
-		System.out.println("Please name the file");
-		 Scanner input = new Scanner(System.in);
-		 name = input.next();
 		
+	    JTextArea textArea = new JTextArea();
+		textArea.setEnabled(false);
 		
-		 
 		 Object test;
          try {
              test = new ReflectiveCallable() {
@@ -165,6 +175,16 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
          Statement statement =new InvokeMethod(method, test);
          statement = possiblyExpectingExceptions(method, test, statement);
          
+         PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
+ 		System.setOut(printStream);
+ 		
+         // re-assigns standard output stream and error output stream
+         System.setOut(printStream);
+         System.setErr(printStream);
+         
+         panel1.add(textArea);
+         frame.add(panel1);
+         frame.setVisible(true);
          
          
 		Grader graderAnnotation = (Grader)method.getAnnotation(Grader.class);
@@ -173,37 +193,47 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
         
       	result.setText(" Method Name : " + method.getName() + "\n"+ " Student Name: " + graderAnnotation.StudentName()
         		+"\n"+" Student ID : " + graderAnnotation.StudentID()+"\n"+" Class Number: " + graderAnnotation.Class()
-        		+"\n"+" Title: " + graderAnnotation.Assignment()+"\n"+" --------------------------- " );
-            
+        		+"\n"+" Title: " + graderAnnotation.Assignment()+"\n"+" --------------------------- "+"\n");
+             	
         }
-        
         panel.add(result);
-         frame.add(panel);
-         frame.setVisible(true);
-      
+        frame.add(panel);
+        frame.setVisible(true);
+        
+       
+         Rectangle rec = frame.getBounds(); // Getting the size of JFrame
+  		 
+  		 BufferedImage capture = new BufferedImage(rec.width, rec.height,  BufferedImage.TYPE_INT_ARGB);
+  		 
+  		  frame.paint(capture.getGraphics());
+  		  
+  		 System.out.println("Name the file");
+  		Scanner i = new Scanner(System.in);
+  		name = i.nextLine();
+  		
+  		    try {
+  		    	
+  		    	
+  		        ImageIO.write(capture, "png", new File(name));
+  		    
+  		      
+  		        // System.setErr(printStream);
+  		         
+  		     
+  		    } catch (IOException ioe) {
+  		 
+  		        System.out.println(ioe);
+  		 
+  		    }
+  		  
+         // frame.setVisible(true);
          
-         //Screen capture
          
- 		Rectangle rec = frame.getBounds(); // Getting the size of JFrame
- 		 
- 		 BufferedImage capture = new BufferedImage(rec.width, rec.height,  BufferedImage.TYPE_INT_ARGB);
- 		 
- 		  frame.paint(capture.getGraphics());
- 		 
- 		 
- 		    try {
- 		    	
- 		        ImageIO.write(capture, "png", new File(fileName));
- 		       System.setOut(new PrintStream(new FileOutputStream(fileName),true));
- 		    } catch (IOException ioe) {
- 		 
- 		        System.out.println(ioe);
- 		 
- 		    } 
- 		 
+ 		
+		 
  
 		 return statement;
 	}
 		
-	
+
 	}
