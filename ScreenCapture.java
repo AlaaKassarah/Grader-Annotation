@@ -1,12 +1,9 @@
 
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +11,8 @@ import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.junit.Ignore;
@@ -35,7 +30,6 @@ import org.junit.runners.model.Statement;
 import Grader.Annotation.Project.Grader;
 
 
-@SuppressWarnings("deprecation")
 public class ScreenCapture extends ParentRunner<FrameworkMethod> {
 	
  /*make change */  
@@ -51,8 +45,8 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
 	 
 	 
 	public ScreenCapture(java.lang.Class<?> Class) throws InitializationError  {
-		
-		 super(Class);
+		super(Class);
+			
 		 
 	} 
 	
@@ -90,11 +84,11 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
             notifier.fireTestIgnored(description);
         } else {
             try {
-            
+            	
 				runLeaf(Monitor(method,Gframe,name), description, notifier);
             	
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
         }
@@ -136,7 +130,7 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
 	
 	protected Statement Monitor(final FrameworkMethod method,JFrame frame, String fileName) throws Exception{
 		
-		
+		   
 		
 		this.Gframe = frame;
 		this.name = fileName;
@@ -155,9 +149,12 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
 		JTextArea result = new JTextArea();
 		result.setEnabled(false);
 		
-	    JTextArea textArea = new JTextArea();
+	    JTextArea textArea = new JTextArea(30,30);
 		textArea.setEnabled(false);
 		
+		
+          
+       
 		 Object test;
          try {
              test = new ReflectiveCallable() {
@@ -170,68 +167,66 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
              return new Fail(e);
          }
          
-         
-
          Statement statement =new InvokeMethod(method, test);
          statement = possiblyExpectingExceptions(method, test, statement);
          
-         PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
- 		System.setOut(printStream);
- 		
-         // re-assigns standard output stream and error output stream
-         System.setOut(printStream);
-         System.setErr(printStream);
-         
-         panel1.add(textArea);
-         frame.add(panel1);
-         frame.setVisible(true);
-         
-         
+       
+     
+
+
 		Grader graderAnnotation = (Grader)method.getAnnotation(Grader.class);
 		
         if(graderAnnotation != null) {
-        
+        	
       	result.setText(" Method Name : " + method.getName() + "\n"+ " Student Name: " + graderAnnotation.StudentName()
         		+"\n"+" Student ID : " + graderAnnotation.StudentID()+"\n"+" Class Number: " + graderAnnotation.Class()
         		+"\n"+" Title: " + graderAnnotation.Assignment()+"\n"+" --------------------------- "+"\n");
              	
+      	 PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
+	  		System.setOut(printStream);
+	  		 // re-assigns standard output stream and error output stream
+	        
+	        System.setErr(printStream);
+	          
+
+	  		
+  		
         }
+        
+
+	  	
         panel.add(result);
         frame.add(panel);
         frame.setVisible(true);
         
-       
+        panel1.add(textArea);
+        frame.add(panel1);
+        frame.setVisible(true);
+         
+           System.out.println("Name the file");
+    	    Scanner i = new Scanner(System.in);
+    	  	name = i.nextLine();
+    	  	
          Rectangle rec = frame.getBounds(); // Getting the size of JFrame
   		 
   		 BufferedImage capture = new BufferedImage(rec.width, rec.height,  BufferedImage.TYPE_INT_ARGB);
   		 
-  		  frame.paint(capture.getGraphics());
-  		  
-  		 System.out.println("Name the file");
-  		Scanner i = new Scanner(System.in);
-  		name = i.nextLine();
-  		
-  		    try {
-  		    	
-  		    	
-  		        ImageIO.write(capture, "png", new File(name));
-  		    
-  		      
-  		        // System.setErr(printStream);
-  		         
-  		     
-  		    } catch (IOException ioe) {
-  		 
-  		        System.out.println(ioe);
-  		 
-  		    }
-  		  
-         // frame.setVisible(true);
-         
-         
- 		
+  		 frame.paint(capture.getGraphics());
+  		  try {
+		    	
+  			
+        
+		        ImageIO.write(capture, "png", new File(name));
+		        
+		       
+		         		    } catch (IOException ioe) {
 		 
- 
+		        System.out.println(ioe);
+		 
+		    }
+  		
+  		
+         
 		 return statement;
 	}
 		
