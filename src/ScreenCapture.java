@@ -183,7 +183,9 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
         		+"\n"+" Title: " + graderAnnotation.Assignment()+"\n"+" --------------------------- "+"\n");
              	
       	 PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
+      	//textArea.add(Syste m.setOut(printStream));
 	  		System.setOut(printStream);
+	  		//textArea.setText(System.setOut(printStream));
 	  		 // re-assigns standard output stream and error output stream
 	        
 	        System.setErr(printStream);
@@ -216,7 +218,7 @@ public class ScreenCapture extends ParentRunner<FrameworkMethod> {
 		    	
   			
         
-		        ImageIO.write(capture, "png", new File(name));
+		        ImageIO.write(capture, "png", new File("/Users/alaakassarah/"+name));
 		        
 		       
 		         		    } catch (IOException ioe) {

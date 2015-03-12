@@ -1,11 +1,11 @@
 package Grader.Annotation.Project;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.junit.Ignore;
 import org.junit.internal.runners.model.ReflectiveCallable;
 import org.junit.internal.runners.statements.Fail;
@@ -16,7 +16,9 @@ import org.junit.runners.ParentRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
+
 import com.google.api.services.drive.Drive;
+
 import edu.csupomona.cs585.ibox.sync.GoogleDriveFileSyncManager;
 import edu.csupomona.cs585.ibox.sync.GoogleDriveServiceProvider;
 
@@ -29,12 +31,14 @@ public class Grader_Runner extends ParentRunner<FrameworkMethod> {
         public GoogleDriveFileSyncManager drive;
         public Drive service;
    
-        
-	public Grader_Runner(java.lang.Class<?> Class) throws InitializationError, FileNotFoundException {
+        File  localFile = new File("/Users/alaakassarah/Result.txt");
+	public Grader_Runner(java.lang.Class<?> Class) throws InitializationError{
 		super(Class);
 		
 		service =GoogleDriveServiceProvider.get().getGoogleDriveClient() ; 
 	    drive = new GoogleDriveFileSyncManager(service);
+	  
+		   
 	}
 	
 	
@@ -96,7 +100,7 @@ public class Grader_Runner extends ParentRunner<FrameworkMethod> {
 	        	
 	            try {
 					runLeaf(processAnnotation(method), description, notifier);
-				    
+					
 	            } catch (Throwable e) {
 					
 					e.printStackTrace();
@@ -122,17 +126,17 @@ public class Grader_Runner extends ParentRunner<FrameworkMethod> {
 		  * 
 		  */
     
+		
+		 
 
 	
 private Statement processAnnotation(FrameworkMethod method) throws Throwable{
 
 	
 //................. to redirect result............
-		
-   File  localFile = new File("/Users/alaakassarah/Result.txt");
-   System.setOut(new PrintStream(new FileOutputStream(localFile,true)));
-
 	
+	System.setOut(new PrintStream(new FileOutputStream(localFile,true)));
+	   
 //........................ Reflect Method Results.....................................
 	   
 	   
@@ -157,8 +161,8 @@ private Statement processAnnotation(FrameworkMethod method) throws Throwable{
         
          
         Statement statement =new InvokeMethod(method, test);
-        	 
-         
+        
+        
              Grader graderAnnotation = method.getAnnotation(Grader.class);
 	            
 	            if(graderAnnotation != null) {
@@ -174,11 +178,11 @@ private Statement processAnnotation(FrameworkMethod method) throws Throwable{
 	            }
 	           
 	        
-	         drive.addFile(localFile);
-	           
+	             drive.addFile(localFile);
 				return statement;
 	     }
-	
+
+      
 	
 
 }

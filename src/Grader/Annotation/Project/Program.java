@@ -5,13 +5,18 @@ import org.junit.runner.RunWith;
 
 public class Program {
 	
- @Grader(StudentName="Alaa", StudentID="009797814", Class= "CS585")
+	@Grader
+	public static  void Method1() {
+        System.out.println("This method is Static");
+    }  
+	
+	@Grader(StudentName="Alaa", StudentID="009797814", Class= "CS585")
  
 	public void compltedMethod() {
         System.out.println("This method is complete");
     }   
 	
-	@Grader
+	@Grader(Assignment= "final Project")
 	public void Test() {
         System.out.println("This method is Tested");
     } 
@@ -20,7 +25,7 @@ public class Program {
 	public int Add(){
 		int a;
 		a =5+6;
-		System.out.println(a);
+		//System.out.println(a);
 	
 		return a;	
 	}
